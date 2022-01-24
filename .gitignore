@@ -1,0 +1,10 @@
+.idea
+*.pyc
+
+# experiments folder
+playground
+
+# DOT ENVS
+.env.flask
+.env.secret
+.env.shared

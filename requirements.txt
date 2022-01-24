@@ -1,0 +1,24 @@
+cffi==1.15.0
+click==8.0.3
+cryptography==36.0.1
+Deprecated==1.2.13
+Flask==2.0.2
+flask-marshmallow==0.14.0
+Flask-SQLAlchemy==2.5.1
+greenlet==1.1.2
+itsdangerous==2.0.1
+Jinja2==3.0.3
+MarkupSafe==2.0.1
+marshmallow==3.14.1
+mysqlclient==2.1.0
+packaging==21.3
+protobuf==3.19.3
+pycparser==2.21
+PyJWT==2.3.0
+pyparsing==3.0.6
+python-dotenv @ git+https://github.com/theskumar/python-dotenv@ba9408c5048e8e512318df423541d2b44ac6019f
+redis==4.1.1
+six==1.16.0
+SQLAlchemy==1.4.29
+Werkzeug==2.0.2
+wrapt==1.13.3
