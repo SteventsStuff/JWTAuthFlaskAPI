@@ -70,4 +70,4 @@ class User(UpdateMixin, db.Model):
             raise DBError(str(e))
 
     def __repr__(self) -> str:
-        return f'<{type(self).__name__} {self.username}>'
+        return f'<{type(self).__name__} {self.username}, {self.email_address}>'
