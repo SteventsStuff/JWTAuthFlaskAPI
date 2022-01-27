@@ -89,6 +89,27 @@ def check_reset_password_token(token: str) -> Response:
     return abort(HTTPStatus.UNAUTHORIZED, 'Invalid token')
 
 
+@users_bp.post('/reset-password')
+@decorators.required_access_token
+def reset_password(user: User) -> Response:
+    logger.info('Got a new reqeust for password reset.')
+    parsed_reqeust_body = request_helpers.parse_reqeust_body_or_abort(request)
+    user_info = request_helpers.get_validated_user_data_or_abort(
+        schemas.reset_password_schema,
+        parsed_reqeust_body
+    )
+
+    user.password = user_info['password']
+    try:
+        user.save_to_db()
+    except DBError as e:
+        logger.error(e)
+        return abort(HTTPStatus.INTERNAL_SERVER_ERROR, 'Failed to update password')
+
+    logger.info(f'Password for the user {user.id} was updated')
+    return jsonify({'msg': 'Password updated'})
+
+
 @users_bp.get('/')
 def home() -> Response:
     return jsonify({'msg': 'hello!'})
