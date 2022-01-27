@@ -40,7 +40,6 @@ class ResetPasswordSchema(ma.Schema):
         unknown = EXCLUDE
         ordered = True
 
-    id = fields.String(required=True)
     password = fields.String(required=True, load_only=True, validate=validate.Length(min=8))
 
 
