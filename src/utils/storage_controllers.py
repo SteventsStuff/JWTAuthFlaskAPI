@@ -17,13 +17,17 @@ class RefreshTokenStorageController:
 
     def set_user_refresh_token(self, user_id: str, token: str) -> None:
         with RedisContextManager(self._host, self._port, self._db) as redis_conn:
-            redis_conn.hset(self._KEY_NAME, token, user_id)
+            data = redis_conn.hgetall(self._KEY_NAME)
+            existing_token = self._find_key_by_value(data, user_id)
+            if existing_token:
+                redis_conn.hdel(self._KEY_NAME, existing_token)
+            redis_conn.hsetnx(self._KEY_NAME, token, user_id)
 
     def reset_user_refresh_token(self, current_token: str, new_token: str) -> None:
         with RedisContextManager(self._host, self._port, self._db) as redis_conn:
             user_id = redis_conn.hget(self._KEY_NAME, current_token)
             redis_conn.hdel(self._KEY_NAME, current_token)
-            redis_conn.hset(self._KEY_NAME, new_token, user_id)
+            redis_conn.hsetnx(self._KEY_NAME, new_token, user_id)
 
     def remove_refresh_token(self, user_id: str) -> None:
         with RedisContextManager(self._host, self._port, self._db) as redis_conn:
