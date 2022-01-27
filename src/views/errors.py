@@ -8,13 +8,13 @@ from werkzeug import exceptions as exc
 
 @unique
 class ResponseStatuses(Enum):
-    failed = 'FAILED'
+    FAILED = 'FAILED'
 
 
 # 4xx
 def bad_request(e: exc.BadRequest) -> Tuple[Response, int]:
     context = {
-        'status': ResponseStatuses.failed.value,
+        'status': ResponseStatuses.FAILED.value,
         'message': 'Invalid request body was provided.',
         'details': e.description,
     }
@@ -23,7 +23,7 @@ def bad_request(e: exc.BadRequest) -> Tuple[Response, int]:
 
 def unauthorized(e: exc.Unauthorized) -> Tuple[Response, int]:
     context = {
-        'status': ResponseStatuses.failed.value,
+        'status': ResponseStatuses.FAILED.value,
         'message': 'Unauthorized',
         'details': e.description,
     }
@@ -32,7 +32,7 @@ def unauthorized(e: exc.Unauthorized) -> Tuple[Response, int]:
 
 def page_not_found(e: exc.NotFound) -> Tuple[Response, int]:
     context = {
-        'status': ResponseStatuses.failed.value,
+        'status': ResponseStatuses.FAILED.value,
         'message': 'Not found.',
         'details': e.description,
     }
@@ -41,7 +41,7 @@ def page_not_found(e: exc.NotFound) -> Tuple[Response, int]:
 
 def method_not_allowed(e: exc.MethodNotAllowed) -> Tuple[Response, int]:
     context = {
-        'status': ResponseStatuses.failed.value,
+        'status': ResponseStatuses.FAILED.value,
         'message': 'The method is not allowed for the requested URL.',
         'details': e.description,
     }
@@ -50,7 +50,7 @@ def method_not_allowed(e: exc.MethodNotAllowed) -> Tuple[Response, int]:
 
 def conflict(e: exc.Conflict) -> Tuple[Response, int]:
     context = {
-        'status': ResponseStatuses.failed.value,
+        'status': ResponseStatuses.FAILED.value,
         'message': 'Can not process request...',
         'details': e.description,
     }
@@ -59,7 +59,7 @@ def conflict(e: exc.Conflict) -> Tuple[Response, int]:
 
 def unprocessed_entity(e: exc.UnprocessableEntity) -> Tuple[Response, int]:
     context = {
-        'status': ResponseStatuses.failed.value,
+        'status': ResponseStatuses.FAILED.value,
         'message': 'Can not process provided data.',
         'details': e.description,
     }
@@ -69,7 +69,7 @@ def unprocessed_entity(e: exc.UnprocessableEntity) -> Tuple[Response, int]:
 # 5xx
 def internal_server_error(e: exc.InternalServerError) -> Tuple[Response, int]:
     context = {
-        'status': ResponseStatuses.failed.value,
+        'status': ResponseStatuses.FAILED.value,
         'message': 'Something went wrong...',
         'details': e.description,
     }
