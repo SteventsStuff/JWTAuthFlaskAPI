@@ -1,7 +1,10 @@
 import typing as t
 
+import log
 from flask import Flask
 from flask_mail import Mail, Message
+
+logger = log.APILogger(__name__)
 
 
 class EmailSender:
@@ -10,7 +13,7 @@ class EmailSender:
         self._mail: Mail = Mail(flask_app)
 
     def send_password_reset_email(self, email_address: str, token: str) -> None:
-        body = f'Please,use that token to reset your password: {token}'
+        body = f'Please, use that token to reset your password: {token}'
         name = self._app_config['SERVER_NAME'].split(':')[0]
         sender = (name, 'noreply@authapi.com')
         context = {
@@ -20,5 +23,10 @@ class EmailSender:
             'sender': sender,
         }
 
+        logger.info(f'Sending email to with password recovery information to {email_address}...')
         message = Message(**context)
-        self._mail.send(message)
+        try:
+            self._mail.send(message)
+        # todo: bad exception handling
+        except Exception as e:
+            logger.error(f'Failed to send an email to {email_address}.\nError: {e}')

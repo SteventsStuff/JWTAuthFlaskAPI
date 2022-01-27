@@ -4,9 +4,12 @@ import datetime
 import jwt
 from itsdangerous import TimedJSONWebSignatureSerializer as JSONSerializer
 
+import log
 from src.abstractions.abc_token_generator import ABCTokenGenerator
 from src.mixins import ExpirationTimeMixin
 from src.exceptions import AccessTokenGeneratorError, ResetPasswordTokenGeneratorError
+
+logger = log.APILogger(__name__)
 
 
 class AccessTokenGenerator(ABCTokenGenerator, ExpirationTimeMixin):
@@ -14,6 +17,7 @@ class AccessTokenGenerator(ABCTokenGenerator, ExpirationTimeMixin):
         self._app_config = config or None
 
     def create_token(self, claims: t.Dict[str, t.Any]) -> str:
+        logger.info('Creating a new JWT access token...')
         try:
             record_id = claims['rid']
         except KeyError as e:
@@ -41,7 +45,6 @@ class AccessTokenGenerator(ABCTokenGenerator, ExpirationTimeMixin):
         payload = {
             'rid': record_id,
             'iss': issuer,
-            # 'aud': issuer,
             'iat': issued_at,
             'exp': self.create_exp_timestamp(issued_at, token_exp_timeout),
         }
@@ -58,6 +61,7 @@ class RefreshTokenGenerator(ABCTokenGenerator, ExpirationTimeMixin):
         self._app_config = config or None
 
     def create_token(self, claims: t.Dict[str, t.Any] = None) -> str:
+        logger.info('Creating a new JWT refresh token...')
         payload = self._create_jwt_refresh_payload(claims)
         token = jwt.encode(payload, self._app_config['SECRET_KEY'])
         return token
@@ -76,7 +80,6 @@ class RefreshTokenGenerator(ABCTokenGenerator, ExpirationTimeMixin):
         issued_at = datetime.datetime.utcnow()
         payload = {
             'iss': issuer,
-            # 'aud': issuer,
             'iat': issued_at,
             'exp': self.create_exp_timestamp(issued_at, token_exp_timeout),
         }
@@ -98,6 +101,7 @@ class ResetPasswordTokenGenerator(ABCTokenGenerator):
         )
 
     def create_token(self, claims: t.Dict[str, t.Any]) -> str:
+        logger.info('Creating a new password refresh token...')
         try:
             user_id = claims['rid']
         except KeyError as e:

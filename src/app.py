@@ -2,7 +2,9 @@ import typing as t
 from http import HTTPStatus
 
 from flask import Flask
+from flask_log_request_id import RequestID
 
+import log
 from src.models import db
 from src.schemas import ma
 from src.exceptions import AppIsNotConfigured
@@ -12,17 +14,21 @@ from src.views import errors as err
 from config import APIConfig
 
 
+logger = log.APILogger(__name__)
+
+
 class App:
     def __init__(self) -> None:
         self._app: Flask = Flask(__name__)
         self._is_configured: bool = False
 
     def configure_app(self, config: t.Type[APIConfig]) -> None:
+        logger.info('Configuring application...')
         self._app.config.from_object(config)
 
-        from src.models import User
         self._init_db()
         self._init_marshmallow()
+        self._init_reqeust_id_logger()
         self._register_blueprints()
         self._register_error_handlers()
 
@@ -31,23 +37,31 @@ class App:
     @property
     def config(self) -> t.Dict[t.Any, t.Any]:
         if not self._is_configured:
-            raise AppIsNotConfigured('Your app is not configured! '
-                                     'You must call "configure_app" method first!')
+            msg = 'Can not get "config" property. Your app is not configured! ' \
+                  'You must call "configure_app" method first!'
+            logger.error(msg)
+            raise AppIsNotConfigured(msg)
         return self._app.config
 
     @property
     def flask_app(self) -> Flask:
         if not self._is_configured:
-            raise AppIsNotConfigured('Your app is not configured! '
-                                     'You must call "configure_app" method first!')
+            msg = 'Can not get "flask_app" property. Your app is not configured! ' \
+                  'You must call "configure_app" method first!'
+            logger.error(msg)
+            raise AppIsNotConfigured(msg)
         return self._app
 
     def _init_db(self) -> None:
+        from src.models import User
         db.init_app(self._app)
         db.create_all(app=self._app)
 
     def _init_marshmallow(self) -> None:
         ma.init_app(self._app)
+
+    def _init_reqeust_id_logger(self) -> None:
+        RequestID(self._app)
 
     def _register_blueprints(self) -> None:
         self._app.register_blueprint(auth_bp)

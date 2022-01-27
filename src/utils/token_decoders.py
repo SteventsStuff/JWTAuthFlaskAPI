@@ -4,8 +4,11 @@ import jwt
 from itsdangerous import TimedJSONWebSignatureSerializer as JSONSerializer
 from itsdangerous.exc import BadData
 
+import log
 from src.abstractions.abc_token_decoder import ABCTokenDecoder
 from src.exceptions import ResetPasswordTokenDecodeError
+
+logger = log.APILogger(__name__)
 
 
 class JWTDecoder(ABCTokenDecoder):
@@ -13,6 +16,7 @@ class JWTDecoder(ABCTokenDecoder):
         self._app_config = config or None
 
     def decode_token(self, token: str) -> str:
+        logger.info('Trying to decode a JWT token...')
         return jwt.decode(token, self._app_config['SECRET_KEY'], [self._app_config['JWT_ALGORITHM']])
 
 
@@ -25,6 +29,7 @@ class ResetPasswordTokenDecoder(ABCTokenDecoder):
         )
 
     def decode_token(self, token: str) -> t.Dict[str, str]:
+        logger.info('Trying to decode a password refresh token...')
         try:
             return self._serializer.loads(token)
         except BadData as e:
