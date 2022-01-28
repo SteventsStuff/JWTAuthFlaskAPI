@@ -1,9 +1,5 @@
-import logging
-
-from src.app import create_app
 import src.utils as utils
-
-logging.basicConfig(level=logging.INFO)
+from src.app import create_app
 
 # init API app
 auth_api = create_app()
