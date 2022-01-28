@@ -20,5 +20,8 @@ reset_password_token_decoder = utils.ResetPasswordTokenDecoder(auth_api.config)
 # email utils
 email_sender = utils.EmailSender(auth_api.config, auth_api.flask_app)
 
+# get Migrate
+migrate = auth_api.migrate
+
 # get Flask app for actual run
 app = auth_api.flask_app

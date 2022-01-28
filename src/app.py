@@ -2,6 +2,7 @@ import typing as t
 from http import HTTPStatus
 
 from flask import Flask
+from flask_migrate import Migrate
 from flask_log_request_id import RequestID
 
 import log
@@ -21,12 +22,14 @@ class App:
     def __init__(self) -> None:
         self._app: Flask = Flask(__name__)
         self._is_configured: bool = False
+        self._migrate = Migrate()
 
     def configure_app(self, config: t.Type[APIConfig]) -> None:
         logger.info('Configuring application...')
         self._app.config.from_object(config)
 
         self._init_db()
+        self._init_migrate()
         self._init_marshmallow()
         self._init_reqeust_id_logger()
         self._register_blueprints()
@@ -51,6 +54,18 @@ class App:
             logger.error(msg)
             raise AppIsNotConfigured(msg)
         return self._app
+
+    @property
+    def migrate(self) -> Migrate:
+        if not self._is_configured:
+            msg = 'Can not get "migrate" property. Your app is not configured! ' \
+                  'You must call "configure_app" method first!'
+            logger.error(msg)
+            raise AppIsNotConfigured(msg)
+        return self._migrate
+
+    def _init_migrate(self) -> None:
+        self._migrate.init_app(self._app, db)
 
     def _init_db(self) -> None:
         from src.models import User
