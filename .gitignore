@@ -2,6 +2,9 @@
 *.pyc
 *.DS_Store
 
+# logs
+logs
+
 # experiments folder
 playground
 
