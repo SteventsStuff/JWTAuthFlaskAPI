@@ -9,7 +9,6 @@ env = t.MappingProxyType({
     **dotenv_values('.env.flask'),
     **dotenv_values('.env.secret'),
     **dotenv_values('.env.shared'),
-    **os.environ,
 })
 
 
@@ -18,8 +17,7 @@ class APIConfig:
     SECRET_KEY = env.get('SECRET_KEY', 'top-secret!')
 
     # SERVER
-    # SERVER_NAME = os.environ.get('SERVER_NAME', 'auth-api:5000')
-    SERVER_NAME = os.environ.get('SERVER_NAME', '127.0.0.1:5000')
+    SERVER_NAME = env.get('SERVER_NAME', '127.0.0.1:5000')
     DEBUG = env.get('DEBUG', 'true')
     ENV = env.get('FLASK_ENV', 'development')
     # https://flask.palletsprojects.com/en/2.0.x/config/#configuring-from-data-files "JSON_SORT_KEYS"
