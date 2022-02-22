@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import datetime
 import typing as t
+import uuid
+import datetime
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
@@ -58,6 +59,12 @@ class User(UpdateMixin, db.Model):
                            cls.email_address == username)).first()
 
         return duplicate.id if duplicate else None
+
+    @classmethod
+    def create_user(cls, user_info: t.Dict[str, t.Any]) -> User:
+        user = cls(**user_info, id=str(uuid.uuid4()), is_active=1)
+        user.save_to_db()
+        return user
 
     def save_to_db(self):
         logger.debug(f'Trying to save user with id: {self.id} into DB...')
