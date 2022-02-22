@@ -29,15 +29,12 @@ def register() -> Response:
         abort(HTTPStatus.CONFLICT, f'User with the same info already exists. Id: {duplicate_id}')
 
     try:
-        user = User(**user_info, id=str(uuid.uuid4()), is_active=1)
+        user = User.create_user(user_info)
+    except DBError as e:
+        return abort(HTTPStatus.INTERNAL_SERVER_ERROR, str(e))
     except Exception as e:
         logger.error(f'Failed to create a new user. Error type: {e}\nError: {e}')
         return abort(HTTPStatus.BAD_REQUEST, f'Can not create such user. Error: {e}')
-
-    try:
-        user.save_to_db()
-    except DBError as e:
-        return abort(HTTPStatus.INTERNAL_SERVER_ERROR, str(e))
 
     return jsonify({'msg': f'user {user} created!', 'id': user.id})
 

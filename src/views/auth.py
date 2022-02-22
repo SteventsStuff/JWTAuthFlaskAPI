@@ -14,6 +14,10 @@ from src.models import User
 logger = log.APILogger(__name__)
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
+WWW_AUTHENTICATE: str = 'WWW-Authenticate'
+AUTH_FAILED_REALM: str = 'Authentication Failed'
+INVALID_TOKEN_MSG: str = 'Invalid refresh token'
+
 
 @auth_bp.post('/login')
 def login() -> FlaskResponse:
@@ -26,7 +30,7 @@ def login() -> FlaskResponse:
         return make_response(
             jsonify({'msg': 'Could not verify creds.'}),
             HTTPStatus.UNAUTHORIZED,
-            {'WWW-Authenticate': 'Basic realm="Authentication Failed"'}
+            {WWW_AUTHENTICATE: f'Basic realm="{AUTH_FAILED_REALM}"'}
         )
 
     user = User.query.filter_by(username=auth.username).first()
@@ -35,7 +39,7 @@ def login() -> FlaskResponse:
         return make_response(
             jsonify({'msg': 'Could not verify creds'}),
             HTTPStatus.UNAUTHORIZED,
-            {'WWW-Authenticate': 'Basic realm="Authentication Failed"'}
+            {WWW_AUTHENTICATE: f'Basic realm="{AUTH_FAILED_REALM}"'}
         )
     access_token = run.access_token_generator.create_token({'rid': user.id})
     refresh_token = run.refresh_token_generator.create_token()
@@ -57,18 +61,18 @@ def refresh() -> FlaskResponse:
         refresh_token = parsed_request_body['refreshToken']
     except KeyError as e:
         logger.error(f'Request body does not contain a mandatory field {e}')
-        return abort(HTTPStatus.UNAUTHORIZED, 'Invalid refresh token')
+        return abort(HTTPStatus.UNAUTHORIZED, INVALID_TOKEN_MSG)
 
     try:
         run.jwt_decoder.decode_token(refresh_token)
     except jwt.InvalidTokenError as e:
         logger.error(f'Failed to decode token: {e}')
-        return abort(HTTPStatus.UNAUTHORIZED, 'Invalid refresh token')
+        return abort(HTTPStatus.UNAUTHORIZED, INVALID_TOKEN_MSG)
 
     user_id = run.refresh_token_storage_controller.get_user_id_by_refresh_token(refresh_token)
     if not user_id:
         logger.error(f'User was not found by a token.')
-        return abort(HTTPStatus.UNAUTHORIZED, 'Invalid refresh token')
+        return abort(HTTPStatus.UNAUTHORIZED, INVALID_TOKEN_MSG)
 
     access_token = run.access_token_generator.create_token({'rid': user_id})
     new_refresh_token = run.refresh_token_generator.create_token()
