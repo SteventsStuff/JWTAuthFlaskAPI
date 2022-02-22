@@ -1,6 +1,7 @@
 import typing as t
 
 import log
+import run
 from flask import Flask
 from flask_mail import Mail, Message
 
@@ -23,10 +24,17 @@ class EmailSender:
             'sender': sender,
         }
 
-        logger.info(f'Sending email to with password recovery information to {email_address}...')
+        logger.info(f'Sending am email to with password recovery information to {email_address}...')
         message = Message(**context)
+
+        if run.app.config['DEBUG'] == 1:
+            print(message)
+            logger.debug(
+                f'Sending a fake email to with password recovery information to {email_address}...\nMessage: {message}'
+            )
+            return
+
         try:
             self._mail.send(message)
-        # todo: bad exception handling
         except Exception as e:
             logger.error(f'Failed to send an email to {email_address}.\nError: {e}')
