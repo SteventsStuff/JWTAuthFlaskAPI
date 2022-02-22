@@ -1,8 +1,10 @@
 import typing as t
 from http import HTTPStatus
 
-from flask import request, abort
+from flask import abort
+from flask import Request as FlaskRequest
 from marshmallow import ValidationError
+from requests import Response
 
 import log
 from src.schemas import ma
@@ -38,7 +40,7 @@ def get_validated_user_data_or_abort(schema: ma.Schema,
         return abort(HTTPStatus.BAD_REQUEST, e.args[0])
 
 
-def get_bearer_auth_token(request_obj: request) -> t.Optional[str]:
+def get_bearer_auth_token(request_obj: FlaskRequest) -> t.Optional[str]:
     auth_header = request_obj.headers.get('Authorization', '')
     splitted_header_value = auth_header.split('Bearer ')
     token = splitted_header_value[-1] if len(splitted_header_value) == 2 else None
