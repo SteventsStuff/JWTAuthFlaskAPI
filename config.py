@@ -1,5 +1,6 @@
 import os
 import types as t
+from pathlib import Path
 
 from dotenv import dotenv_values
 
@@ -13,6 +14,8 @@ env = t.MappingProxyType({
 
 
 class APIConfig:
+    BASE_DIR = Path()
+
     # KEY
     SECRET_KEY = env.get('SECRET_KEY', 'top-secret!')
 
@@ -38,11 +41,11 @@ class APIConfig:
     JWT_ISSUER = env.get('JWT_ISSUER')
 
     # REDIS
-    R_HOST = env.get('R_HOST', '127.0.0.1')
-    R_PORT = int(env.get('R_PORT', '6379'))
-    R_PWD = env.get('R_PWD', '')
-    R_JWT_DB = int(env.get('R_JWT_DB', 0))
-    R_RESET_EMAIL_TOKENS_DB = int(env.get('R_RESET_EMAIL_TOKENS_DB', 1))
+    REDIS_HOST = env.get('REDIS_HOST', '127.0.0.1')
+    REDIS_PORT = int(env.get('REDIS_PORT', '6379'))
+    REDIS_PWD = env.get('REDIS_PWD', '')
+    REDIS_JWT_DB = int(env.get('REDIS_JWT_DB', 0))
+    REDIS_RESET_EMAIL_TOKENS_DB = int(env.get('REDIS_RESET_EMAIL_TOKENS_DB', 1))
 
     # EMAIL
     MAIL_EXPIRES_IN = int(env.get('MAIL_EXPIRES_IN', 120))

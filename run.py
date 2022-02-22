@@ -10,9 +10,9 @@ access_token_generator = utils.AccessTokenGenerator(auth_api.config)
 refresh_token_generator = utils.RefreshTokenGenerator(auth_api.config)
 jwt_decoder = utils.JWTDecoder(auth_api.config)
 refresh_token_storage_controller = utils.RefreshTokenStorageController(
-    host=auth_api.config['R_HOST'],
-    port=auth_api.config['R_PORT'],
-    db=auth_api.config['R_JWT_DB'],
+    auth_api.config['REDIS_HOST'],
+    auth_api.config['REDIS_PORT'],
+    auth_api.config['REDIS_JWT_DB'],
 )
 # reset PWD utils
 reset_password_token_generator = utils.ResetPasswordTokenGenerator(auth_api.config)
