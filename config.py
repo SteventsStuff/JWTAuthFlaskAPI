@@ -18,7 +18,7 @@ class APIConfig:
 
     # SERVER
     SERVER_NAME = env.get('SERVER_NAME', '127.0.0.1:5000')
-    DEBUG = env.get('DEBUG', 'true')
+    DEBUG = bool(int(env.get('DEBUG', '1')))
     ENV = env.get('FLASK_ENV', 'development')
     # https://flask.palletsprojects.com/en/2.0.x/config/#configuring-from-data-files "JSON_SORT_KEYS"
     JSON_SORT_KEYS = bool(env.get('JSON_SORT_KEYS', 1))
@@ -54,3 +54,8 @@ class APIConfig:
     MAIL_PASSWORD = env.get('MAIL_PASSWORD', None)
     MAIL_DEFAULT_SENDER = env.get('MAIL_DEFAULT_SENDER', 'noreply@authapi.com')
     MAIL_MAX_EMAILS = env.get('MAIL_MAX_EMAILS', 1)
+
+    # GOOGLE AUTH
+    GOOGLE_CLIENT_ID = env.get('GOOGLE_CLIENT_ID', 'no-id')
+    GOOGLE_CLIENT_SECRET = env.get('GOOGLE_CLIENT_SECRET', 'no-secret')
+    GOOGLE_CONFIG_FILENAME = env.get('GOOGLE_CONFIG_FILENAME', 'googleConfig.json')

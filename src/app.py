@@ -4,12 +4,14 @@ from http import HTTPStatus
 from flask import Flask
 from flask_migrate import Migrate
 from flask_log_request_id import RequestID
+from authlib.integrations.flask_client import OAuth
 
 import log
 from src.models import db
 from src.schemas import ma
 from src.exceptions import AppIsNotConfigured
 from src.views.auth import auth_bp
+from src.views.social_auth import social_auth_bp
 from src.views.users import users_bp
 from src.views import errors as err
 from config import APIConfig
@@ -22,7 +24,10 @@ class App:
     def __init__(self) -> None:
         self._app: Flask = Flask(__name__)
         self._is_configured: bool = False
-        self._migrate = Migrate()
+        self._migrate: Migrate = Migrate(self._app)
+        self._oauth: OAuth = OAuth(self._app)
+
+        RequestID(self._app)
 
     def configure_app(self, config: t.Type[APIConfig]) -> None:
         logger.info('Configuring application...')
@@ -80,6 +85,7 @@ class App:
 
     def _register_blueprints(self) -> None:
         self._app.register_blueprint(auth_bp)
+        self._app.register_blueprint(social_auth_bp)
         self._app.register_blueprint(users_bp)
 
     def _register_error_handlers(self) -> None:

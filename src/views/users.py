@@ -1,7 +1,7 @@
-import uuid
 from http import HTTPStatus
 
-from flask import Blueprint, Response, abort, jsonify, request
+from flask import Blueprint, Response
+from flask import abort, jsonify, request
 
 import log
 import run

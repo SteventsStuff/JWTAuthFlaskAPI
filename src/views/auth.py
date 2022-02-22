@@ -1,21 +1,22 @@
 from http import HTTPStatus
 
 import jwt
-from flask import Blueprint, request, jsonify, Response, abort, make_response
+from flask import Blueprint
+from flask import Response as FlaskResponse
+from flask import request, jsonify, abort, make_response
+from werkzeug.security import check_password_hash
 
 import run
 import log
 from src.utils import request_helpers, decorators
 from src.models import User
-from werkzeug.security import check_password_hash
 
 logger = log.APILogger(__name__)
-
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @auth_bp.post('/login')
-def login() -> Response:
+def login() -> FlaskResponse:
     auth = request.authorization
 
     if not auth or not auth.username or not auth.password:
@@ -48,13 +49,8 @@ def login() -> Response:
     return jsonify(response)
 
 
-@auth_bp.post('/social-login')
-def social_login() -> Response:
-    pass
-
-
 @auth_bp.post('/refresh')
-def refresh() -> Response:
+def refresh() -> FlaskResponse:
     logger.info(f'Got a new request for a token refresh')
     parsed_request_body = request_helpers.parse_reqeust_body_or_abort(request)
     try:
@@ -88,7 +84,7 @@ def refresh() -> Response:
 
 @auth_bp.delete('/logout')
 @decorators.required_access_token
-def logout(user: User) -> Response:
+def logout(user: User) -> FlaskResponse:
     run.refresh_token_storage_controller.remove_refresh_token(user.id)
     logger.info(f'{user} was logged out.')
     return make_response('', HTTPStatus.NO_CONTENT)

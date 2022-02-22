@@ -10,10 +10,13 @@ from src.schemas import ma
 logger = log.APILogger(__name__)
 
 
-def parse_reqeust_body_or_abort(request_obj: request) -> t.Dict[t.Any, t.Any]:
+def parse_reqeust_body_or_abort(request_obj: t.Union[FlaskRequest, Response]) -> t.Dict[t.Any, t.Any]:
     logger.info('Trying to parse reqeust body...')
     try:
-        parsed_reqeust_body = request_obj.json
+        if isinstance(request_obj, FlaskRequest):
+            parsed_reqeust_body = request_obj.json
+        else:
+            parsed_reqeust_body = request_obj.json()
     except ValueError as e:
         logger.error(f'Failed to parse reqeust body. Error: {e}')
         return abort(HTTPStatus.BAD_REQUEST, 'Failed to parse reqeust body')
