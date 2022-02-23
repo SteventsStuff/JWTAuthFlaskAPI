@@ -6,9 +6,9 @@ from flask import abort, jsonify, request
 import log
 import run
 from src import schemas
+from src.exceptions import ResetPasswordTokenDecodeError, DBError
 from src.models import User
 from src.utils import decorators, request_helpers
-from src.exceptions import ResetPasswordTokenDecodeError, DBError
 
 logger = log.APILogger(__name__)
 
@@ -24,7 +24,7 @@ def register() -> Response:
         schemas.register_user_schema,
         parsed_request_body
     )
-    duplicate_id = User.is_already_exists(user_info)
+    duplicate_id = User.get_duplicate_id(user_info)
     if duplicate_id:
         abort(HTTPStatus.CONFLICT, f'User with the same info already exists. Id: {duplicate_id}')
 

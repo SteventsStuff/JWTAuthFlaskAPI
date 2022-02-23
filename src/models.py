@@ -50,8 +50,17 @@ class User(UpdateMixin, db.Model):
         return db.session.query(cls).filter(cls.id == record_id).first()
 
     @classmethod
-    def is_already_exists(cls, user_info: t.Dict[str, t.Any]) -> t.Optional[int]:
-        email = user_info["email_address"]
+    def get_duplicate_id(cls, user_info: t.Dict[str, t.Any]) -> t.Optional[str]:
+        """Gets duplicate report ID from the DB if such exists
+
+        Args:
+            user_info (dict): User information. It must contain "email_address" and "username" fields.
+
+        Returns:
+            str (optional): Duplicate report ID from the DB if such exists, None otherwise
+        """
+
+        email = user_info['email_address']
         username = user_info['username']
         logger.debug(f'Checking if user with username: {username} or email address: {email} already exists')
         duplicate = db.session.query(cls) \
