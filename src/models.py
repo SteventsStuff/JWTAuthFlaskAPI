@@ -1,16 +1,16 @@
 from __future__ import annotations
 
+import datetime
 import typing as t
 import uuid
-import datetime
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from werkzeug.security import generate_password_hash
 
 import log
-from .mixins import UpdateMixin
 from src.exceptions import DBError
+from .mixins import UpdateMixin
 
 logger = log.APILogger(__name__)
 
@@ -32,7 +32,8 @@ class User(UpdateMixin, db.Model):
     is_active = db.Column(db.SMALLINT, name='isActive')
 
     @property
-    def password(self):
+    def password(self) -> str:
+        """str: A password hash"""
         return self.password_hash
 
     @password.setter
@@ -41,11 +42,29 @@ class User(UpdateMixin, db.Model):
 
     @classmethod
     def get_by_email_address(cls, email_address: str) -> t.Optional[User]:
+        """Gets a user from the DB by an email address
+
+        Args:
+            email_address (str): Email address
+
+        Returns:
+             User (optional): User by an email if such exists, None otherwise
+        """
+
         logger.debug(f'Trying to get a user by email address: {email_address}')
         return db.session.query(cls).filter(cls.email_address == email_address).first()
 
     @classmethod
     def get_by_id(cls, record_id: str) -> t.Optional[User]:
+        """Gets a user from the DB by ID
+
+        Args:
+            record_id (str): User primary key (UUIDv4)
+
+        Returns:
+            User (optional): User by id if such exists, None otherwise
+        """
+
         logger.debug(f'Trying to get a user by id: {record_id}')
         return db.session.query(cls).filter(cls.id == record_id).first()
 
@@ -71,11 +90,30 @@ class User(UpdateMixin, db.Model):
 
     @classmethod
     def create_user(cls, user_info: t.Dict[str, t.Any]) -> User:
+        """Creates user in the DB.
+
+        Args:
+            user_info (dict): User information.
+
+        Returns:
+            User: User object
+
+        Raises:
+            AttributesError: if failed to create a User object
+            DBError: if failed to save a created User object into DB
+        """
+
         user = cls(**user_info, id=str(uuid.uuid4()), is_active=1)
         user.save_to_db()
         return user
 
-    def save_to_db(self):
+    def save_to_db(self) -> None:
+        """Saves a User object in the DB
+
+        Returns:
+            None
+        """
+
         logger.debug(f'Trying to save user with id: {self.id} into DB...')
         try:
             db.session.add(self)

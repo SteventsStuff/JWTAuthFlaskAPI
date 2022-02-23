@@ -1,20 +1,20 @@
 import typing as t
 from http import HTTPStatus
 
-from flask import Flask
-from flask_migrate import Migrate
-from flask_log_request_id import RequestID
 from authlib.integrations.flask_client import OAuth
+from flask import Flask
+from flask_log_request_id import RequestID
+from flask_migrate import Migrate
 
 import log
+from config import APIConfig
+from src.exceptions import AppIsNotConfigured
 from src.models import db
 from src.schemas import ma
-from src.exceptions import AppIsNotConfigured
+from src.views import errors as err
 from src.views.auth import auth_bp
 from src.views.social_auth import social_auth_bp
 from src.views.users import users_bp
-from src.views import errors as err
-from config import APIConfig
 
 logger = log.APILogger(__name__)
 
@@ -32,6 +32,15 @@ class App:
         RequestID(self._app)
 
     def configure_app(self, config: t.Type[APIConfig]) -> None:
+        """Initiates additional modules such as Marshmallow and SQLAlchemy.
+        Register blueprints and add error handlers.
+
+        Args:
+            config (APIConfig class): a class with all necessary configurations
+
+        Returns:
+            None
+        """
         logger.info('Configuring application...')
         self._app.config.from_object(config)
 
@@ -45,6 +54,7 @@ class App:
 
     @property
     def config(self) -> t.Dict[t.Any, t.Any]:
+        """dict: full flask application configuration"""
         if not self._is_configured:
             msg = self._APP_NOT_CONFIGURED_MSG.format('config')
             logger.error(msg)
@@ -53,6 +63,7 @@ class App:
 
     @property
     def flask_app(self) -> Flask:
+        """Flask: a flask application"""
         if not self._is_configured:
             msg = self._APP_NOT_CONFIGURED_MSG.format('flask_app')
             logger.error(msg)
@@ -61,6 +72,7 @@ class App:
 
     @property
     def migrate(self) -> Migrate:
+        """Migrate: an instance of the Migrate class"""
         if not self._is_configured:
             msg = self._APP_NOT_CONFIGURED_MSG.format('migrate')
             logger.error(msg)
@@ -69,6 +81,7 @@ class App:
 
     @property
     def oauth(self) -> OAuth:
+        """OAuth: an instance of the OAuth class"""
         if not self._is_configured:
             msg = self._APP_NOT_CONFIGURED_MSG.format('oauth')
             logger.error(msg)
@@ -76,7 +89,6 @@ class App:
         return self._oauth
 
     def _init_db(self) -> None:
-        from src.models import User
         db.init_app(self._app)
         db.create_all(app=self._app)
 
@@ -101,6 +113,12 @@ class App:
 
 
 def create_app() -> App:
+    """Creates a new API application
+
+    Returns:
+        App: A new and already configured API application
+    """
+
     application = App()
     application.configure_app(APIConfig)
     return application
