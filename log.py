@@ -14,6 +14,15 @@ class APILogger(logging.Logger):
     _logger_configs: t.Dict[str, t.Any] = {}
 
     def __init__(self, name: str) -> None:
+        """A logger wrapper class that already have a stream_handler and a file handler configured
+
+        Notes:
+            This logger supports a reqeust ID logging
+
+        Args:
+            name (str): Logger name
+        """
+
         super().__init__(name)
 
         # stream_handler
@@ -33,6 +42,15 @@ class APILogger(logging.Logger):
 
     @classmethod
     def configure_logging(cls, configs: t.Dict[str, t.Any]) -> None:
+        """Updates a logger configs
+
+        Args:
+            configs (dict[str, any]): logger configuration
+
+        Returns:
+            None
+        """
+
         cls._logger_configs = configs
 
 

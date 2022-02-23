@@ -14,6 +14,8 @@ env = t.MappingProxyType({
 
 
 class APIConfig:
+    """A class for the Flask application"""
+
     BASE_DIR = Path()
 
     # KEY

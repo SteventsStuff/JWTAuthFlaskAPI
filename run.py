@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""It is a pet project in Flask to get some experience on developing a JWT auth REST-API.
+
+__author__ = "Volodymyr Miroshnychenko"
+__credits__ = ["Volodymyr Miroshnychenko"]
+__version__ = "0.5.0"
+__maintainer__ = "Volodymyr Miroshnychenko"
+__email__ = "miroshveva98@gmail.com"
+__status__ = "Development"
+"""
+
 import src.utils as utils
 from src.app import create_app
 
