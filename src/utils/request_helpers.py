@@ -1,8 +1,8 @@
 import typing as t
 from http import HTTPStatus
 
-from flask import abort
 from flask import Request as FlaskRequest
+from flask import abort
 from marshmallow import ValidationError
 from requests import Response
 
@@ -13,6 +13,15 @@ logger = log.APILogger(__name__)
 
 
 def parse_reqeust_body_or_abort(request_obj: t.Union[FlaskRequest, Response]) -> t.Dict[t.Any, t.Any]:
+    """Parses a request response body.
+
+    Args:
+        request_obj (union[FlaskRequest, Response]): Reqeust object
+
+    Returns:
+        dict: Response data
+    """
+
     logger.info('Trying to parse reqeust body...')
     try:
         if isinstance(request_obj, FlaskRequest):
@@ -30,8 +39,20 @@ def parse_reqeust_body_or_abort(request_obj: t.Union[FlaskRequest, Response]) ->
     return parsed_reqeust_body
 
 
-def get_validated_user_data_or_abort(schema: ma.Schema,
-                                     request_body: t.Dict[str, t.Any]) -> t.Dict[str, t.Any]:
+def get_validated_user_data_or_abort(
+        schema: ma.Schema,
+        request_body: t.Dict[str, t.Any]
+) -> t.Dict[str, t.Any]:
+    """Validates a response body with a marshmallow schema
+
+    Args:
+        schema (Schema): Marshmallow schema
+        request_body (dict): Request body
+
+    Returns:
+        dict: Validated request body
+    """
+
     logger.info('Validating reqeust body...')
     try:
         return schema.load(request_body)
@@ -41,6 +62,14 @@ def get_validated_user_data_or_abort(schema: ma.Schema,
 
 
 def get_bearer_auth_token(request_obj: FlaskRequest) -> t.Optional[str]:
+    """Extracts a token from a bearer auth
+
+    Args:
+        request_obj (Request): reqeust body
+
+    Returns:
+        str: Token
+    """
     auth_header = request_obj.headers.get('Authorization', '')
     splitted_header_value = auth_header.split('Bearer ')
     token = splitted_header_value[-1] if len(splitted_header_value) == 2 else None

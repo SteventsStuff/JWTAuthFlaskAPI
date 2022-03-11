@@ -1,35 +1,70 @@
 import typing as t
+
 from .context_managers import RedisContextManager
 
 
 class RefreshTokenStorageController:
     _KEY_NAME: str = 'refreshTokens'
 
-    def __init__(self, host: str, port: int, db: int):
+    def __init__(self, host: str, port: int, db: int) -> None:
         self._host: str = host
         self._port: int = port
         self._db: int = db
 
-    def get_user_id_by_refresh_token(self, token: str) -> t.Optional[str]:
+    def get_user_id_by_refresh_token(self, refresh_token: str) -> t.Optional[str]:
+        """Gets a user id from Redis by refresh token
+
+        Args:
+            refresh_token (str): Token
+
+        Returns:
+            str: User id
+        """
         with RedisContextManager(self._host, self._port, self._db) as redis_conn:
-            user_id = redis_conn.hget(self._KEY_NAME, token)
+            user_id = redis_conn.hget(self._KEY_NAME, refresh_token)
         return user_id
 
-    def set_user_refresh_token(self, user_id: str, token: str) -> None:
+    def set_user_refresh_token(self, user_id: str, refresh_token: str) -> None:
+        """Sets a new user refresh token in Redis
+
+        Args:
+            user_id (str): User id
+            refresh_token (str): Refresh token
+
+        Returns:
+            None
+        """
         with RedisContextManager(self._host, self._port, self._db) as redis_conn:
             data = redis_conn.hgetall(self._KEY_NAME)
             existing_token = self._find_key_by_value(data, user_id)
             if existing_token:
                 redis_conn.hdel(self._KEY_NAME, existing_token)
-            redis_conn.hsetnx(self._KEY_NAME, token, user_id)
+            redis_conn.hsetnx(self._KEY_NAME, refresh_token, user_id)
 
-    def reset_user_refresh_token(self, current_token: str, new_token: str) -> None:
+    def reset_user_refresh_token(self, current_refresh_token: str, new_refresh_token: str) -> None:
+        """Replaces current refresh token by a new token in Redis
+
+        Args:
+            current_refresh_token (str): Current refresh token
+            new_refresh_token (str): New refresh token
+
+        Returns:
+            None
+        """
         with RedisContextManager(self._host, self._port, self._db) as redis_conn:
-            user_id = redis_conn.hget(self._KEY_NAME, current_token)
-            redis_conn.hdel(self._KEY_NAME, current_token)
-            redis_conn.hsetnx(self._KEY_NAME, new_token, user_id)
+            user_id = redis_conn.hget(self._KEY_NAME, current_refresh_token)
+            redis_conn.hdel(self._KEY_NAME, current_refresh_token)
+            redis_conn.hsetnx(self._KEY_NAME, new_refresh_token, user_id)
 
     def remove_refresh_token(self, user_id: str) -> None:
+        """Removes refresh token from Redis
+
+        Args:
+            user_id (str): User id
+
+        Returns:
+            None
+        """
         with RedisContextManager(self._host, self._port, self._db) as redis_conn:
             data = redis_conn.hgetall(self._KEY_NAME)
             token_to_delete = self._find_key_by_value(data, user_id)

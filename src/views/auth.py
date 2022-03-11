@@ -6,10 +6,10 @@ from flask import Response as FlaskResponse
 from flask import request, jsonify, abort, make_response
 from werkzeug.security import check_password_hash
 
-import run
 import log
-from src.utils import request_helpers, decorators
+import run
 from src.models import User
+from src.utils import request_helpers, decorators
 
 logger = log.APILogger(__name__)
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -21,6 +21,14 @@ INVALID_TOKEN_MSG: str = 'Invalid refresh token'
 
 @auth_bp.post('/login')
 def login() -> FlaskResponse:
+    """Login a user by the Basic Auth (login and password)
+
+    Notes:
+        UNAUTHORIZED (401) response if token is invalid
+
+    Returns:
+        Response: A response with access and refresh tokens
+    """
     auth = request.authorization
 
     if not auth or not auth.username or not auth.password:
@@ -55,6 +63,11 @@ def login() -> FlaskResponse:
 
 @auth_bp.post('/refresh')
 def refresh() -> FlaskResponse:
+    """Refreshes user's access and refresh token
+
+    Returns:
+        Response: A response with new access and refresh tokens
+    """
     logger.info(f'Got a new request for a token refresh')
     parsed_request_body = request_helpers.parse_reqeust_body_or_abort(request)
     try:
@@ -89,6 +102,14 @@ def refresh() -> FlaskResponse:
 @auth_bp.delete('/logout')
 @decorators.required_access_token
 def logout(user: User) -> FlaskResponse:
+    """Logout a user by removing a user's refresh token from Redis
+
+    Args:
+        user (User): User object
+
+    Returns:
+        Response: A response with NO CONTENT (204)
+    """
     run.refresh_token_storage_controller.remove_refresh_token(user.id)
     logger.info(f'{user} was logged out.')
     return make_response('', HTTPStatus.NO_CONTENT)

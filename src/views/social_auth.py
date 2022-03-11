@@ -18,12 +18,18 @@ social_auth_bp = Blueprint('social_auth', __name__, url_prefix='/auth')
 
 @social_auth_bp.get('/login/google')
 def google_login() -> FlaskResponse:
+    """Triggers a google auth redirect"""
     redirect_uri = url_for('social_auth.authorize_google', _external=True)
     return run.google_login_util.authorize_redirect(redirect_uri)
 
 
 @social_auth_bp.get('/login/google/authorize')
 def authorize_google() -> FlaskResponse:
+    """Auth via Google
+
+    Returns:
+        Response: a response with new access and refresh tokens
+    """
     # token = run.google_login_util.authorize_access_token()
     run.google_login_util.authorize_access_token()
 

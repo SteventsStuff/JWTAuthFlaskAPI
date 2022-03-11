@@ -12,3 +12,10 @@ playground
 .env.flask
 .env.secret
 .env.shared
+
+# GOOGLE configs
+googleConfig.json
+
+# tmp
+README.md
+tests

@@ -12,16 +12,27 @@ logger = log.APILogger(__name__)
 
 
 class JWTDecoder(ABCTokenDecoder):
-    def __init__(self, config=None):
+
+    def __init__(self, config: t.Dict[str, t.Any] = None) -> None:
         self._app_config = config or None
 
     def decode_token(self, token: str) -> str:
+        """Decodes a JWT
+
+        Args:
+            token (str): JWT
+
+        Returns:
+            str: decoded token
+        """
+
         logger.info('Trying to decode a JWT token...')
         return jwt.decode(token, self._app_config['SECRET_KEY'], [self._app_config['JWT_ALGORITHM']])
 
 
 class ResetPasswordTokenDecoder(ABCTokenDecoder):
-    def __init__(self, config=None):
+
+    def __init__(self, config: t.Dict[str, t.Any] = None) -> None:
         self._app_config = config or None
         self._serializer: JSONSerializer = JSONSerializer(
             self._app_config['SECRET_KEY'],
@@ -29,6 +40,18 @@ class ResetPasswordTokenDecoder(ABCTokenDecoder):
         )
 
     def decode_token(self, token: str) -> t.Dict[str, str]:
+        """Decodes JWS JSON Web Signature (JWS).
+
+        Args:
+            token (str): JWS token
+
+        Returns:
+            dict: user information
+
+        Raises:
+            ResetPasswordTokenDecodeError: if invalid token specified
+        """
+
         logger.info('Trying to decode a password refresh token...')
         try:
             return self._serializer.loads(token)

@@ -40,7 +40,7 @@ google_util_config = utils.create_google_config(
     auth_api.config['BASE_DIR'],
     auth_api.config['GOOGLE_CONFIG_FILENAME'],
 )
-google_login_util = utils.GoogleLoginUnit(google_util_config)
+google_login_util = utils.GoogleLoginUtil(google_util_config)
 
 # get Flask app for actual run
 app = auth_api.flask_app

@@ -1,12 +1,12 @@
-import typing as t
 import functools
+import typing as t
 from http import HTTPStatus
 
 import jwt
 from flask import request, abort, Response
 
-import run
 import log
+import run
 import src.utils.request_helpers as helpers
 from src.models import User
 
@@ -14,6 +14,15 @@ logger = log.APILogger(__name__)
 
 
 def required_access_token(func: t.Callable) -> t.Callable:
+    """Decorates a view function to add an auth by JWT
+
+    Args:
+        func (callable): View function
+
+    Returns:
+        callable: A decorated view function that required a JWT auth
+    """
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Response:
         token = helpers.get_bearer_auth_token(request)
