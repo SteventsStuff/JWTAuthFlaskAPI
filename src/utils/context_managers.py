@@ -3,10 +3,11 @@ from redis import Redis
 
 class RedisContextManager:
     """Context manager for a redis connector"""
-    def __init__(self, host: str, port: int, db: int) -> None:
+    def __init__(self, host: str, port: int, db: int, password: str = '') -> None:
         self._redis = Redis(
             host=host,
             port=port,
+            password=password,
             db=db,
             decode_responses=True
         )

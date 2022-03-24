@@ -8,10 +8,12 @@ services:
 #    ports:
 #      - "5001:5000"
 
-  rdb:
-    image: redis:latest
+  redis-db:
+    image: redis-with-pass
     container_name: rdb-test
     restart: always
+    volumes:
+      - ~/DocekrTestVolumes/redis-db:/data
     ports:
       - "6379:6379"
 

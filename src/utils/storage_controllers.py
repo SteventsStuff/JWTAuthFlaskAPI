@@ -6,10 +6,18 @@ from .context_managers import RedisContextManager
 class RefreshTokenStorageController:
     _KEY_NAME: str = 'refreshTokens'
 
-    def __init__(self, host: str, port: int, db: int) -> None:
+    def __init__(self, host: str, port: int, db: int, password: str = '') -> None:
         self._host: str = host
         self._port: int = port
+        self._password: str = password
         self._db: int = db
+        #
+        self._context_manager_context = {
+            'host': self._host,
+            'port': self._port,
+            'password': self._password,
+            'db': self._db,
+        }
 
     def get_user_id_by_refresh_token(self, refresh_token: str) -> t.Optional[str]:
         """Gets a user id from Redis by refresh token
@@ -20,7 +28,7 @@ class RefreshTokenStorageController:
         Returns:
             str: User id
         """
-        with RedisContextManager(self._host, self._port, self._db) as redis_conn:
+        with RedisContextManager(**self._context_manager_context) as redis_conn:
             user_id = redis_conn.hget(self._KEY_NAME, refresh_token)
         return user_id
 
@@ -34,7 +42,7 @@ class RefreshTokenStorageController:
         Returns:
             None
         """
-        with RedisContextManager(self._host, self._port, self._db) as redis_conn:
+        with RedisContextManager(**self._context_manager_context) as redis_conn:
             data = redis_conn.hgetall(self._KEY_NAME)
             existing_token = self._find_key_by_value(data, user_id)
             if existing_token:
@@ -51,7 +59,7 @@ class RefreshTokenStorageController:
         Returns:
             None
         """
-        with RedisContextManager(self._host, self._port, self._db) as redis_conn:
+        with RedisContextManager(**self._context_manager_context) as redis_conn:
             user_id = redis_conn.hget(self._KEY_NAME, current_refresh_token)
             redis_conn.hdel(self._KEY_NAME, current_refresh_token)
             redis_conn.hsetnx(self._KEY_NAME, new_refresh_token, user_id)
@@ -65,7 +73,7 @@ class RefreshTokenStorageController:
         Returns:
             None
         """
-        with RedisContextManager(self._host, self._port, self._db) as redis_conn:
+        with RedisContextManager(**self._context_manager_context) as redis_conn:
             data = redis_conn.hgetall(self._KEY_NAME)
             token_to_delete = self._find_key_by_value(data, user_id)
             if token_to_delete:

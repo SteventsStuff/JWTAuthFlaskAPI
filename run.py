@@ -24,6 +24,7 @@ refresh_token_storage_controller = utils.RefreshTokenStorageController(
     auth_api.config['REDIS_HOST'],
     auth_api.config['REDIS_PORT'],
     auth_api.config['REDIS_JWT_DB'],
+    auth_api.config['REDIS_PWD'],
 )
 # reset PWD utils
 reset_password_token_generator = utils.ResetPasswordTokenGenerator(auth_api.config)
