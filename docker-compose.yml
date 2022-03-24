@@ -17,13 +17,12 @@ services:
     ports:
       - "6379:6379"
 
-  db:
+  mysql-db:
     image: mysql:latest
     container_name: mysql-test
-#    command: --default-authentication-plugin=mysql_native_password
     restart: always
-#    volumes:
-#      - dbdata:/var/lib/mysql  # hz
+    volumes:
+      - ~/DocekrTestVolumes/mysql-db:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: rootpwd
       MYSQL_DATABASE: test-db
